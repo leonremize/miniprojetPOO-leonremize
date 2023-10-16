@@ -1,7 +1,8 @@
-#version 1.1 : élimination des 0 sans recursivité !
+#version 1.2 : amélioration affichage + condition de victoire
 
 from random import randint
 from os import system
+from math import log10, floor
 
 class Case :
     '''
@@ -169,26 +170,53 @@ class Plateau :
 
     def affichage(self) :
         '''Renvoie un string pour l'affichage de la grille sur plusieurs lignes'''
+        map0 = False
         if self.__map == [] :
-            return ("# "*self.__largueur + "\n")*self.__longueur
+            map0 = True
         
         rslt = ""
+        espacement_vertrical = floor(log10(self.__largueur-1))+1
+        espacement_d_ligne = floor(log10(self.__longueur-1))+1
+        rslt += " "*(espacement_d_ligne+3)
+        for i in range(self.__largueur) :
+            rslt += formatint(i, espacement_vertrical)+" "
+        rslt += "\n"
+        rslt += " "*(espacement_d_ligne+3)+"-"*(espacement_vertrical+1)*self.__largueur+"\n"
+
         for j in range(self.__longueur) :
+            rslt += f"{formatint(j, espacement_d_ligne)} | "
             for i in range(self.__largueur) :
-                rslt += self.__map[j][i].afficher() +" "
+                if map0 :
+                    rslt += "#"
+                else :
+                    rslt += self.__map[j][i].afficher()
+                rslt += espacement_vertrical*" "
             rslt += "\n"
+
+        if not "#" in rslt and rslt.count("P")==self.__nb_bombe :
+            return rslt + "\n\n!!! Vous avez gagné !!!!"
 
         return rslt
 
+def formatint(number, n) :
+    number = str(number)
+    if len(number)>n :
+        return "0"*n
+    else :
+        return "0"*(n-len(number))+number
 
 def jouer(largueur,longueur, nb_bombe) :
     p = Plateau(largueur, longueur, nb_bombe)
     while True :
         system('cls')
 
-        print(p.affichage())
+        afficher = p.affichage()
+        if afficher[-1]=="!" :
+            print(afficher)
+            break
+        print(afficher)
         try :
-            action, x, y = input("Saisir 0(drapeau) ou 1(creuser) puis les coordonnées de la case\n/!\ tous les nombres doivent être séparés par des espaces :\n").split(" ")
+            action, x, y = input("Saisir 0(drapeau) ou 1(creuser) puis les coordonnées x y de la case\n/!\ tous les nombres doivent être séparés par des espaces :\n").split(" ")
             action = bool(int(action))
             x, y = int(x), int(y)
         except ValueError :
@@ -205,4 +233,4 @@ def jouer(largueur,longueur, nb_bombe) :
         
 
 #lancement d'une partie
-jouer(5,5,7)       
+jouer(10,10,10)
