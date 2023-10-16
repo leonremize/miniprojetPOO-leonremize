@@ -1,4 +1,4 @@
-#version 0.4 : lancement d'une partie et gestion de l'input
+#version 1.1 : élimination des 0 sans recursivité !
 
 from random import randint
 from os import system
@@ -52,10 +52,10 @@ class Case :
             self.__valeur = v
 
     def get_valeur(self) :
-        '''Obtient la valeur de la case si elle est révélée, False sinon'''
+        '''Obtient la valeur de la case si elle est révélée, -1 sinon'''
         if self.est_revelee :
             return self.__valeur
-        return False
+        return -1
     
     def afficher(self) :
         '''Renvoie le symbole correspondant à cette case pour l'affichage
@@ -88,6 +88,7 @@ class Plateau :
         self.__longueur = longueur
         self.__map = []
         self.__nb_bombe = nb_bombe
+        self.__a_cliquer = []
 
     def click(self, x, y) :
         '''Permet de reveler un case de coordonée (x,y)
@@ -100,7 +101,19 @@ class Plateau :
         if self.__map==[] :
             self.__premier_click(x, y)
         
-        return self.__map[y][x].reveler()
+        self.__a_cliquer.append((x,y))
+
+        while len(self.__a_cliquer)!=0 :
+            rslt = self.__map[self.__a_cliquer[0][1]][self.__a_cliquer[0][0]].reveler()
+
+            if rslt and self.__map[self.__a_cliquer[0][1]][self.__a_cliquer[0][0]].get_valeur()==0 :
+                for voisin in self.__voisins(self.__a_cliquer[0][0],self.__a_cliquer[0][1]) :
+                    if self.__map[voisin[1]][voisin[0]].get_valeur()==-1 and not voisin in self.__a_cliquer:
+                        self.__a_cliquer.append(voisin)
+
+            del self.__a_cliquer[0]
+
+        return rslt
 
     def __premier_click(self, x, y) :
         '''Génére le pllateau en prenant en compte le lieu du premier click'''
