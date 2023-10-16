@@ -1,4 +1,4 @@
-#version 0.2 : Ajouter la classe Plateau (génération, click simple)
+#version 0.3 : Finalisation du plateau (affichage, click) et ajout des drapeaux (marquer, click_droit)
 
 from random import randint
 
@@ -25,18 +25,22 @@ class Case :
     def reveler(self) :
         '''
         Permet de reveler la case, ou d'enlever le drapeu s'il y en a 1
-        renvoie True si c'était une bombe et qu'il n'y avait pas de drapeau, False sinon
+        renvoie True si tout va bien (pas de bombe), False sinon
         '''
         if self.est_drapeau :
             self.est_drapeau = False
-            return False
+            return True
         
         self.est_revelee = True
         return not self.__est_bombe
 
     def marquer(self) :
-        '''Permet de mettre un drapeau sur une case'''
-        pass
+        '''Permet de mettre un drapeau sur une case
+        renvoie True si le drapeau est bien placé car la case est bein masquée, False sinon'''
+        if not self.est_revelee :
+            self.est_drapeau = True
+        
+        return not self.est_revelee
     
     def set_valeur(self, v) :
         '''Fixe la valeur sur la case, lors de la configuration initiale
@@ -64,7 +68,7 @@ class Case :
         elif self.est_revelee :
             if self.__valeur == 0 :
                 return " "
-            return self.__valeur
+            return str(self.__valeur)
         else :
             return "#"
 
@@ -81,20 +85,21 @@ class Plateau :
     def __init__(self, largueur:int, longueur:int, nb_bombe:int):
         self.__largueur = largueur
         self.__longueur = longueur
-        self.map = []                           #map doit être un attribut privé mais ne l'est pas encore pour pouvoire effectuer des tests
+        self.__map = []
         self.__nb_bombe = nb_bombe
 
     def click(self, x, y) :
         '''Permet de reveler un case de coordonée (x,y)
+        (x/y sont des entiers entre 0 et largueur/longueur respectivement)
         renvoie False si on revele une bombe
         renvoie True si le click est hors de la grille ou sur une case sure'''
         if type(x)!=int or type(y)!=int or x<0 or x>=self.__largueur or x<0 or y>=self.__longueur :
             return True
         
-        if self.map==[] :
+        if self.__map==[] :
             self.__premier_click(x, y)
         
-        return self.map[y][x].reveler()
+        return self.__map[y][x].reveler()
 
     def __premier_click(self, x, y) :
         '''Génére le pllateau en prenant en compte le lieu du premier click'''
@@ -110,12 +115,12 @@ class Plateau :
 
         #création de la map
         for j in range(self.__longueur) :
-            self.map.append([])
+            self.__map.append([])
             for i in range(self.__largueur) :
                 if (i, j) in bombes :
-                    self.map[j].append(Case(True))
+                    self.__map[j].append(Case(True))
                 else :
-                    self.map[j].append(Case(False))
+                    self.__map[j].append(Case(False))
 
         #mise à jour des valeurs des cases :
         for j in range(self.__longueur) :
@@ -124,7 +129,7 @@ class Plateau :
                 for voisin in self.__voisins(i,j) :
                     if voisin in bombes :
                         nb_bombes_voisines += 1
-                self.map[j][i].set_valeur(nb_bombes_voisines)
+                self.__map[j][i].set_valeur(nb_bombes_voisines)
 
         
 
@@ -139,29 +144,50 @@ class Plateau :
 
 
     def click_droit(self, x, y) :
-        pass
+        '''Permet de click-droit la case(x,y) pour y placer un drapeau
+        (x/y sont des entiers entre 0 et largueur/longueur respectivement)
+        Renvoie True si le drapeau est bien placé
+        False sinon (hors de grille OU case déjà révélée)'''
+        if type(x)!=int or type(y)!=int or x<0 or x>=self.__largueur or x<0 or y>=self.__longueur :
+            return False
+        
+        return self.__map[y][x].marquer()
 
     def affichage(self) :
-        pass
+        '''Renvoie un string pour l'affichage de la grille sur plusieurs lignes'''
+        if self.__map == [] :
+            return ("# "*self.__largueur + "\n")*self.__longueur
+        
+        rslt = ""
+        for j in range(self.__longueur) :
+            for i in range(self.__largueur) :
+                rslt += self.__map[j][i].afficher() +" "
+            rslt += "\n"
+
+        return rslt
 
 #Création du plateau
-p = Plateau(3, 3, 3)            
-p.click(0,1)
-#Le plateau ressemble forcément à  :    □29
-#                                       □39
-#                                       □29
+p = Plateau(50, 50, 50)  
+print(p.affichage())          
+assert p.click(2,2)==True
+#On peut cliquer sur les 8 cases autour de 2,2
+assert p.click(1,1)==True
+assert p.click(1,2)==True
+assert p.click(1,3)==True
+assert p.click(2,3)==True
+assert p.click(3,3)==True
+assert p.click(3,2)==True
+assert p.click(3,1)==True
+assert p.click(2,1)==True
 
-#Car 3 bombes doivent être placée dans un carré de 9 cases sans être voisines de la case à gauche au milieu
+#On place un drapeau, tout se passe bien
+assert p.click_droit(5,5)==True
+print(p.affichage())
 
-#Acutuellement, l'affiche du plateau donnérait :    ###
-#                                                    ##
-#                                                   ###
-#Car seule la case de coordonée (0,1) est révélée
+#On enlève le drapeau sans problème
+assert p.click(5,5)==True
 
-#Tests pour vérifier le bon déroulement de la procédure de création
-assert p.click(0,0)==True      #On clique sur la case en haut à gauche, sans tomber sur une bombe
-assert p.click(2,0)==False     #On clique sur la case en haut à droite (bombe)
-assert p.click(1,1)==True      #On clique sur la case du milieu, sans tomber sur une bombe
-assert p.map[1][1].get_valeur()==3      #On regarde la valeur sur la case centrale, on obtient bien 3 pour les 3 bombes sur la colonne de droite
-assert p.map[2][1].get_valeur()==False  #On regarde la valeur sur une case non-revelée (en bas au milieu), on ne peux pas la regardée (renvoie False)
-assert p.click("hello",-12)==True
+#On prend un risque et on creuse la case ou il y avait le drapeau
+p.click(5,5)
+
+print(p.affichage())
