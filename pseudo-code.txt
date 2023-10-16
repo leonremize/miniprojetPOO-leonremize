@@ -1,0 +1,17 @@
+Fonction cliquer(x,y) :
+    reveler la case(x,y)
+    si la valeur révélée est 0 :
+        Pour chaque voisin non révélés de cette case :
+            cliquer sur le voisin
+
+Création d'une liste de case à cliquer :
+
+Fonction cliquer(x,y) :
+    ajouter la case(x,y) à la liste
+    tant que la liste n'est pas vide :
+        reveler la première case de la liste
+        si sa valeur est 0 :
+        pour chacun de ses voisins :
+            si il n'est pas déjà inclu dans la liste :
+                ajouter le voisin à la liste
+
