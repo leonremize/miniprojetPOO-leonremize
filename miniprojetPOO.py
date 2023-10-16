@@ -1,7 +1,12 @@
-#version 1.0 : élimination des 0 recursifs
+#version 1.0mesure : mesure d'efficatité
 
 from random import randint
 from os import system
+from math import floor
+from time import process_time_ns
+import sys
+
+sys.setrecursionlimit(1000000)
 
 class Case :
     '''
@@ -196,6 +201,12 @@ def jouer(largueur,longueur, nb_bombe) :
             p.click_droit(x,y)
 
         
-
-#lancement d'une partie
-jouer(20,20,30)       
+tests = [5,10,15,20,25,30,40,50,60,65,80,100,125,150,180,225,300,400,500,700,1000]
+nb_rep = [500,300,200,100,50,50,50,50,50,50,50,10,10,10,10,10,10,10,10,10,10,10]
+for t in range(21) :
+    time = process_time_ns()
+    for j in range(nb_rep[t]) :
+        p = Plateau(tests[t],tests[t],0)
+        p.click(floor(t/2),floor(t/2))
+    time = process_time_ns()-time
+    print(time/10**9/nb_rep[t])
