@@ -1,4 +1,4 @@
-#version 0.4 : lancement d'une partie et gestion de l'input
+#version 1.0 : élimination des 0 recursifs
 
 from random import randint
 from os import system
@@ -52,10 +52,10 @@ class Case :
             self.__valeur = v
 
     def get_valeur(self) :
-        '''Obtient la valeur de la case si elle est révélée, False sinon'''
+        '''Obtient la valeur de la case si elle est révélée, -1 sinon'''
         if self.est_revelee :
             return self.__valeur
-        return False
+        return -1
     
     def afficher(self) :
         '''Renvoie le symbole correspondant à cette case pour l'affichage
@@ -100,7 +100,14 @@ class Plateau :
         if self.__map==[] :
             self.__premier_click(x, y)
         
-        return self.__map[y][x].reveler()
+        rslt = self.__map[y][x].reveler()
+
+        if rslt and self.__map[y][x].get_valeur()==0 :
+            for voisin in self.__voisins(x,y) :
+                if self.__map[voisin[1]][voisin[0]].get_valeur()==-1:
+                    self.click(voisin[0],voisin[1])
+
+        return rslt
 
     def __premier_click(self, x, y) :
         '''Génére le pllateau en prenant en compte le lieu du premier click'''
@@ -158,7 +165,6 @@ class Plateau :
         '''Renvoie un string pour l'affichage de la grille sur plusieurs lignes'''
         if self.__map == [] :
             return ("# "*self.__largueur + "\n")*self.__longueur
-        
         rslt = ""
         for j in range(self.__longueur) :
             for i in range(self.__largueur) :
@@ -192,4 +198,4 @@ def jouer(largueur,longueur, nb_bombe) :
         
 
 #lancement d'une partie
-jouer(5,5,7)       
+jouer(20,20,30)       
