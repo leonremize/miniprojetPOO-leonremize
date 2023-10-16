@@ -1,14 +1,10 @@
-#version 0.4 : lancement d'une partie et gestion de l'input
+#version 1.3 : remettre l'algorythme récursif
 
 from random import randint
 from os import system
-from math import floor
-from time import process_time_ns
-import sys
-
-sys.setrecursionlimit(1000000)
 from math import log10, floor
-from time import process_time_ns
+from sys import setrecursionlimit
+setrecursionlimit(10**9)
 
 class Case :
     '''
@@ -95,7 +91,6 @@ class Plateau :
         self.__longueur = longueur
         self.__map = []
         self.__nb_bombe = nb_bombe
-        self.__a_cliquer = []
 
     def click(self, x, y) :
         '''Permet de reveler un case de coordonée (x,y)
