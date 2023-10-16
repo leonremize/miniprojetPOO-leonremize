@@ -78,7 +78,7 @@ class Case :
 
 class Plateau :
     '''
-    Classe gérant le plateau ainsi que les inetraction avec le joueur
+    Classe gérant le plateau ainsi que les interactions avec le joueur
     
     Constructeur :
     Plateau(largueur, longueur, nb_bombe)
@@ -93,7 +93,7 @@ class Plateau :
         self.__nb_bombe = nb_bombe
 
     def click(self, x, y) :
-        '''Permet de reveler un case de coordonée (x,y)
+        '''Permet de reveler une case de coordonée (x,y)
         (x/y sont des entiers entre 0 et largueur/longueur respectivement)
         renvoie False si on revele une bombe
         renvoie True si le click est hors de la grille ou sur une case sure'''
