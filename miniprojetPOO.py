@@ -1,6 +1,7 @@
-#version 0.3 : Finalisation du plateau (affichage, click) et ajout des drapeaux (marquer, click_droit)
+#version 0.4 : lancement d'une partie et gestion de l'input
 
 from random import randint
+from os import system
 
 class Case :
     '''
@@ -148,7 +149,7 @@ class Plateau :
         (x/y sont des entiers entre 0 et largueur/longueur respectivement)
         Renvoie True si le drapeau est bien placé
         False sinon (hors de grille OU case déjà révélée)'''
-        if type(x)!=int or type(y)!=int or x<0 or x>=self.__largueur or x<0 or y>=self.__longueur :
+        if type(x)!=int or type(y)!=int or x<0 or x>=self.__largueur or x<0 or y>=self.__longueur or self.__map==[] :
             return False
         
         return self.__map[y][x].marquer()
@@ -166,28 +167,29 @@ class Plateau :
 
         return rslt
 
-#Création du plateau
-p = Plateau(50, 50, 50)  
-print(p.affichage())          
-assert p.click(2,2)==True
-#On peut cliquer sur les 8 cases autour de 2,2
-assert p.click(1,1)==True
-assert p.click(1,2)==True
-assert p.click(1,3)==True
-assert p.click(2,3)==True
-assert p.click(3,3)==True
-assert p.click(3,2)==True
-assert p.click(3,1)==True
-assert p.click(2,1)==True
 
-#On place un drapeau, tout se passe bien
-assert p.click_droit(5,5)==True
-print(p.affichage())
+def jouer(largueur,longueur, nb_bombe) :
+    p = Plateau(largueur, longueur, nb_bombe)
+    while True :
+        system('cls')
 
-#On enlève le drapeau sans problème
-assert p.click(5,5)==True
+        print(p.affichage())
+        try :
+            action, x, y = input("Saisir 0(drapeau) ou 1(creuser) puis les coordonnées de la case\n/!\ tous les nombres doivent être séparés par des espaces :\n").split(" ")
+            action = bool(int(action))
+            x, y = int(x), int(y)
+        except ValueError :
+            continue
+        
+        if action :
+            rslt = p.click(x,y)
+            if not rslt :
+                print("Perdu, apprend à viser !!!")
+                break
+        else :
+            p.click_droit(x,y)
 
-#On prend un risque et on creuse la case ou il y avait le drapeau
-p.click(5,5)
+        
 
-print(p.affichage())
+#lancement d'une partie
+jouer(5,5,7)       
