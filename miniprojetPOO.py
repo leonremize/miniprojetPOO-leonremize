@@ -28,7 +28,7 @@ class Case :
 
     def reveler(self) :
         '''
-        Permet de reveler la case, ou d'enlever le drapeu s'il y en a 1
+        Permet de reveler la case, ou d'enlever le drapeau s'il y en a 1
         renvoie True si tout va bien (pas de bombe), False sinon
         '''
         if self.est_drapeau :
